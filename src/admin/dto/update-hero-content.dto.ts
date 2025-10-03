@@ -1,7 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsArray } from 'class-validator';
+import { IsString, IsOptional, IsArray, IsBoolean, IsDateString } from 'class-validator';
 
 export class UpdateHeroContentDto {
+  
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
@@ -52,4 +58,19 @@ export class UpdateHeroContentDto {
   @IsOptional()
   @IsString()
   chatWidgetUrl?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  createdAt?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  updatedAt?: string;
 }
