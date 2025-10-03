@@ -3,13 +3,112 @@
 
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admins")
+}
+
+model NavItem {
+  id          String        @id @default(cuid())
+  name        String
+  key         String        @unique
+  href        String?
+  position    Int
+  isActive    Boolean       @default(true)
+  hasDropdown Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  dropdowns   DropdownData[]
+
+  @@map("nav_items")
+}
+
+model DropdownData {
+  id          String          @id @default(cuid())
+  navItemId   String          @unique
+  title       String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  navItem     NavItem         @relation(fields: [navItemId], references: [id], onDelete: Cascade)
+  items       DropdownItem[]
+
+  @@map("dropdown_data")
+}
+
+model DropdownItem {
+  id             String       @id @default(cuid())
+  dropdownDataId String
+  name           String
+  href           String
+  description    String       @db.Text
+  features       Json?
+  position       Int
+  isActive       Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  dropdownData   DropdownData @relation(fields: [dropdownDataId], references: [id], onDelete: Cascade)
+
+  @@map("dropdown_items")
+}
+
+model ThemeConfig {
+  id           String   @id @default(cuid())
+  primaryColor String   @default("#3b82f6")
+  accentColor  String   @default("#f97316")
+  logoUrl      String?
+  companyName  String   @default("Fortune Technologies")
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("theme_config")
+}
+
+model HeroDashboard {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  stats       Json
+  features    Json
+  position    Int
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("hero_dashboards")
+}
+
+model HeroContent {
+  id               String   @id @default(cuid())
+  trustBadge       String   @default("Trusted by 5,000+ Companies")
+  mainHeading      String   @default("Transform Your")
+  subHeading       String   @default("HR Operations")
+  tagline          String   @default("with AI-Powered Solutions")
+  description      String   @db.Text
+  trustPoints      Json
+  primaryCtaText   String   @default("Start Free Trial")
+  secondaryCtaText String   @default("Schedule Demo")
+  phoneNumber      String   @default("0733769149")
+  chatWidgetUrl    String   @default("https://rag-chat-widget.vercel.app/")
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("hero_content")
 }
