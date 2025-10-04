@@ -1,4 +1,4 @@
-// This is your Prisma schema file
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -108,4 +108,73 @@ model HeroContent {
   updatedAt        DateTime @updatedAt
 
   @@map("hero_content")
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String   @db.Text
+  shortDesc   String?  @db.Text
+  icon        String
+  color       String   @default("bg-primary-100 text-primary-600")
+  features    Json
+  benefits    Json?
+  imageUrl    String?
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  position    Int      @default(0)
+  price       String?
+  buttonText  String   @default("Learn More")
+  buttonLink  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("services")
+}
+
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  company   String
+  content   String   @db.Text
+  rating    Int      @default(5)
+  avatar    String
+  results   Json
+  service   String?
+  isActive  Boolean  @default(true)
+  isFeatured Boolean @default(false)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+model Stat {
+  id        String   @id @default(cuid())
+  number    String
+  label     String
+  icon      String?
+  color     String   @default("text-primary-600")
+  isActive  Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("stats")
+}
+
+model SectionContent {
+  id          String   @id @default(cuid())
+  sectionKey  String   @unique
+  title       String
+  subtitle    String?  @db.Text
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("section_contents")
 }

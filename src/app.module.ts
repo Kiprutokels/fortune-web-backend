@@ -9,6 +9,7 @@ import { NavigationModule } from './navigation/navigation.module';
 import { AdminModule } from './admin/admin.module';
 import { HeroModule } from './hero/hero.module';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { PublicModule } from './public/public.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -22,6 +23,7 @@ import configuration from './config/configuration';
     NavigationModule,
     AdminModule,
     HeroModule,
+    PublicModule,
   ],
   controllers: [AppController],
   providers: [
