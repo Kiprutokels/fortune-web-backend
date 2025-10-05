@@ -1,14 +1,14 @@
 import { Controller, Get, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { HeroService } from './hero.service';
-import { Public } from '../common/decorators/public.decorator'; // <-- import here
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Public - Hero')
 @Controller('hero')
 export class HeroController {
   constructor(private readonly heroService: HeroService) {}
 
-  @Public() // <-- mark this endpoint as public
+  @Public()
   @Get()
   @ApiOperation({ summary: 'Get hero section data' })
   @ApiResponse({

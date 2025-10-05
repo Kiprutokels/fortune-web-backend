@@ -3,14 +3,14 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { Public } from '../common/decorators/public.decorator'; // <-- add import
+import { Public } from '../common/decorators/public.decorator';
 
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public() // <-- no token required
+  @Public()
   @Post('login')
   @ApiOperation({ summary: 'Admin login' })
   @ApiResponse({
@@ -25,7 +25,7 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
-  @Public() // <-- no token required
+  @Public()
   @Post('reset-password')
   @ApiOperation({ summary: 'Reset admin password' })
   @ApiResponse({

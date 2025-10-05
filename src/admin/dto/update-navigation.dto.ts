@@ -45,7 +45,6 @@ class NavItemDto {
   @IsBoolean()
   hasDropdown?: boolean;
 
-  // Extra fields coming from DB
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
@@ -104,7 +103,6 @@ class DropdownItemDto {
   @IsBoolean()
   isActive?: boolean;
 
-  // Extra fields from DB
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
