@@ -38,6 +38,7 @@ async function main() {
       primaryColor: '#3b82f6',
       accentColor: '#f97316',
       companyName: 'Fortune Technologies',
+      logoUrl: '/logo.png',
       isActive: true
     }
   });
@@ -109,7 +110,7 @@ async function main() {
             {
               name: 'Staff Outsourcing',
               href: '/services/outsourcing',
-              description: 'Complete staff outsourcing solutions for companies looking to focus on core business while we handle HR operations.',
+              description: 'Complete staff outsourcing solutions allowing you to focus on core business while we handle HR operations.',
               features: ['Full HR Management', 'Payroll Processing', 'Compliance Handling', 'Employee Benefits'],
               position: 3
             },
@@ -129,21 +130,21 @@ async function main() {
             },
             {
               name: 'HR System',
-              href: '/services/hr-system',
+              href: '/technology/hr-system',
               description: 'Complete HR management system for employee records, leave management, and performance tracking.',
               features: ['Employee Database', 'Leave Management', 'Performance Reviews', 'Document Management'],
               position: 6
             },
             {
               name: 'CCTV Solutions',
-              href: '/services/cctv',
+              href: '/security/cctv',
               description: 'Professional CCTV installation and monitoring solutions for enhanced security and workplace safety.',
               features: ['HD Camera Installation', '24/7 Monitoring', 'Cloud Storage', 'Remote Access'],
               position: 7
             },
             {
               name: 'Web Development',
-              href: '/services/web-development',
+              href: '/technology/web-development',
               description: 'Custom web development services to build powerful, scalable websites and web applications for your business.',
               features: ['Custom Websites', 'E-commerce Solutions', 'Mobile Responsive', 'SEO Optimized'],
               position: 8
@@ -262,6 +263,9 @@ async function main() {
   }
   console.log('✅ Hero dashboards created');
 
+  // Delete existing services to avoid duplicates
+  await prisma.service.deleteMany({});
+
   // Services
   const services = [
     {
@@ -274,6 +278,7 @@ async function main() {
       features: ['Automated Calculations', 'KRA Tax Compliance', 'NSSF & NHIF Integration', 'Employee Self-Service'],
       isActive: true,
       isFeatured: true,
+      isPopular: true,
       position: 1,
       buttonText: 'Get Started',
       buttonLink: '/contact',
@@ -307,18 +312,74 @@ async function main() {
       buttonLink: '/services/outsourcing',
     },
     {
+      title: 'HR Consulting',
+      slug: 'hr-consulting',
+      description: 'Expert HR consulting services to optimize human resource strategies and improve organizational performance.',
+      shortDesc: 'Strategic HR consulting',
+      icon: 'TrendingUp',
+      color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+      features: ['Policy Development', 'Process Optimization', 'Training Programs', 'Performance Management'],
+      isActive: true,
+      isFeatured: false,
+      position: 4,
+      buttonText: 'Consult Now',
+      buttonLink: '/contact',
+    },
+    {
       title: 'Time & Attendance',
       slug: 'attendance',
-      description: 'Smart time tracking with automated scheduling and biometric integration.',
+      description: 'Smart time tracking with automated scheduling, biometric integration, and comprehensive attendance management.',
       shortDesc: 'Smart time tracking solutions',
       icon: 'Clock',
-      color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/20 dark:text-purple-400',
+      color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400',
       features: ['Biometric Integration', 'Mobile Clock-in', 'Shift Management', 'Overtime Tracking'],
       isActive: true,
       isFeatured: true,
-      position: 4,
+      position: 5,
       buttonText: 'Try It Now',
       buttonLink: '/services/attendance',
+    },
+    {
+      title: 'HR System',
+      slug: 'hr-system',
+      description: 'Cloud-based HR platform centralizing all human resource operations with workflow automation and custom reports.',
+      shortDesc: 'Complete HR management platform',
+      icon: 'Monitor',
+      color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400',
+      features: ['Employee Database', 'Document Management', 'Workflow Automation', 'Custom Reports'],
+      isActive: true,
+      isFeatured: false,
+      position: 6,
+      buttonText: 'Get Demo',
+      buttonLink: '/contact',
+    },
+    {
+      title: 'CCTV Solutions',
+      slug: 'cctv',
+      description: 'Advanced security monitoring systems with cloud backup, remote access, and AI-powered detection capabilities.',
+      shortDesc: 'Professional security systems',
+      icon: 'Shield',
+      color: 'bg-red-100 text-red-600 dark:bg-red-900/20 dark:text-red-400',
+      features: ['24/7 Monitoring', 'Cloud Storage', 'Mobile Access', 'AI Detection'],
+      isActive: true,
+      isFeatured: false,
+      position: 7,
+      buttonText: 'Secure Now',
+      buttonLink: '/contact',
+    },
+    {
+      title: 'Web Development',
+      slug: 'web-development',
+      description: 'Custom web solutions and digital platforms tailored to your business requirements with modern technologies.',
+      shortDesc: 'Custom web solutions',
+      icon: 'Zap',
+      color: 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/20 dark:text-yellow-400',
+      features: ['Responsive Design', 'E-commerce', 'CMS Integration', 'SEO Optimization'],
+      isActive: true,
+      isFeatured: false,
+      position: 8,
+      buttonText: 'Build Now',
+      buttonLink: '/contact',
     }
   ];
 
@@ -335,47 +396,34 @@ async function main() {
   await prisma.testimonial.deleteMany({});
 
   // Testimonials
-  const testimonials = [
-    {
-      name: 'Sarah Wanjiku',
-      role: 'HR Director',
-      company: 'Safaricom PLC',
-      content: 'Fortune Technologies completely transformed our HR operations. The payroll automation saved us 20 hours per week, and employee satisfaction increased by 45%.',
-      rating: 5,
-      avatar: '👩🏾‍💼',
-      results: ['20hrs saved weekly', '45% satisfaction boost', '100% compliance'],
-      service: 'payroll',
-      isActive: true,
-      isFeatured: true,
-      position: 1,
-    },
-    {
-      name: 'Michael Kiprotich',
-      role: 'CEO',
-      company: 'TechNova Kenya',
-      content: 'The AI-powered recruitment features helped us reduce hiring time by 60%. The integration with KRA and NSSF is seamless.',
-      rating: 5,
-      avatar: '👨🏿‍💼',
-      results: ['60% faster hiring', 'Seamless integration', 'ROI in 2 months'],
-      service: 'recruitment',
-      isActive: true,
-      isFeatured: true,
-      position: 2,
-    },
-    {
-      name: 'Grace Muthoni',
-      role: 'Operations Manager',
-      company: 'Equity Bank',
-      content: 'The analytics dashboard provides incredible insights into our workforce trends. The mobile app makes it easy for our field staff.',
-      rating: 5,
-      avatar: '👩🏾‍💻',
-      results: ['Real-time insights', 'Mobile accessibility', '24/7 support'],
-      service: 'attendance',
-      isActive: true,
-      isFeatured: false,
-      position: 3,
-    }
-  ];
+const testimonials = [
+  {
+    name: 'Sarah Wanjiku',
+    role: 'HR Director',
+    company: 'Safaricom PLC',
+    content: 'Fortune Technologies completely transformed our HR operations. The payroll automation saved us 20 hours per week, and employee satisfaction increased by 45%.',
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612c37c?w=150&h=150&fit=crop&crop=face',
+    results: ['20hrs saved weekly', '45% satisfaction boost', '100% compliance'],
+    service: 'payroll',
+    isActive: true,
+    isFeatured: true,
+    position: 1,
+  },
+  {
+    name: 'Michael Kiprotich',
+    role: 'CEO',
+    company: 'TechNova Kenya',
+    content: 'The AI-powered recruitment features helped us reduce hiring time by 60%. The integration with KRA and NSSF is seamless.',
+    rating: 5,
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    results: ['60% faster hiring', 'Seamless KRA integration', 'ROI in 2 months'],
+    service: 'recruitment',
+    isActive: true,
+    isFeatured: true,
+    position: 2,
+  },
+]
 
   for (const testimonial of testimonials) {
     await prisma.testimonial.create({ data: testimonial });
@@ -456,6 +504,233 @@ async function main() {
     });
   }
   console.log('✅ Section contents created');
+
+  // Footer Sections and Links
+  await prisma.footerLink.deleteMany({});
+  await prisma.footerSection.deleteMany({});
+
+  const footerSections = [
+    {
+      title: 'HR Solutions',
+      position: 1,
+      links: [
+        { name: 'Payroll Management', href: '/services/payroll', position: 1 },
+        { name: 'Time & Attendance', href: '/services/attendance', position: 2 },
+        { name: 'HR Consulting', href: '/services/hr-consulting', position: 3 },
+        { name: 'Staff Outsourcing', href: '/services/outsourcing', position: 4 },
+        { name: 'HR System', href: '/technology/hr-system', position: 5 }
+      ]
+    },
+    {
+      title: 'Technology',
+      position: 2,
+      links: [
+        { name: 'Software Development', href: '/technology/web-development', position: 1 },
+        { name: 'CCTV Solutions', href: '/security/cctv', position: 2 },
+        { name: 'Mobile App', href: '/services/mobile-app', position: 3 },
+        { name: 'Data Security', href: '/services/data-security', position: 4 },
+        { name: 'AI Solutions', href: '/services/ai-solutions', position: 5 }
+      ]
+    },
+    {
+      title: 'Industries',
+      position: 3,
+      links: [
+        { name: 'Small Business', href: '/clients/small-business', position: 1 },
+        { name: 'Healthcare', href: '/industries/healthcare', position: 2 },
+        { name: 'Manufacturing', href: '/industries/manufacturing', position: 3 },
+        { name: 'Retail & Commerce', href: '/industries/retail', position: 4 },
+        { name: 'Financial Services', href: '/industries/finance', position: 5 }
+      ]
+    },
+    {
+      title: 'Support',
+      position: 4,
+      links: [
+        { name: 'Help Center', href: '/support', position: 1 },
+        { name: 'Documentation', href: '/docs', position: 2 },
+        { name: 'About Us', href: '/about', position: 3 },
+        { name: 'Careers', href: '/careers', position: 4 },
+        { name: 'Contact Us', href: '/contact', position: 5 }
+      ]
+    }
+  ];
+
+  for (const section of footerSections) {
+    const createdSection = await prisma.footerSection.create({
+      data: {
+        title: section.title,
+        position: section.position,
+        isActive: true
+      }
+    });
+
+    for (const link of section.links) {
+      await prisma.footerLink.create({
+        data: {
+          footerSectionId: createdSection.id,
+          name: link.name,
+          href: link.href,
+          position: link.position,
+          isActive: true
+        }
+      });
+    }
+  }
+  console.log('✅ Footer sections and links created');
+
+  // Contact Info
+  await prisma.contactInfo.deleteMany({});
+  const contactInfoItems = [
+    {
+      type: 'email',
+      label: 'Email',
+      value: 'support@fortunekenya.com',
+      icon: 'Mail',
+      position: 1
+    },
+    {
+      type: 'phone',
+      label: 'Phone',
+      value: '+254 722 769 149',
+      icon: 'Phone',
+      position: 2
+    },
+    {
+      type: 'address',
+      label: 'Address',
+      value: 'SouthGate Centre, Nairobi, Kenya',
+      icon: 'MapPin',
+      position: 3
+    }
+  ];
+
+  for (const contact of contactInfoItems) {
+    await prisma.contactInfo.create({
+      data: {
+        ...contact,
+        isActive: true
+      }
+    });
+  }
+  console.log('✅ Contact info created');
+
+  // Social Links
+  await prisma.socialLink.deleteMany({});
+  const socialLinks = [
+    {
+      name: 'LinkedIn',
+      icon: 'Linkedin',
+      href: 'https://linkedin.com/company/fortune-technologies',
+      position: 1
+    },
+    {
+      name: 'Twitter',
+      icon: 'Twitter',
+      href: 'https://twitter.com/@fcl_kenya',
+      position: 2
+    },
+    {
+      name: 'Facebook',
+      icon: 'Facebook',
+      href: 'https://facebook.com/fortunetechnologies',
+      position: 3
+    },
+    {
+      name: 'YouTube',
+      icon: 'Youtube',
+      href: 'https://youtube.com/@fortunetechnologies',
+      position: 4
+    }
+  ];
+
+  for (const social of socialLinks) {
+    await prisma.socialLink.create({
+      data: {
+        ...social,
+        isActive: true
+      }
+    });
+  }
+  console.log('✅ Social links created');
+
+  // Page Contents
+  await prisma.pageContent.deleteMany({});
+  const pageContents = [
+    {
+      pageKey: 'services',
+      title: 'Transform Your Business with Fortune Technologies',
+      subtitle: 'Comprehensive HR Solutions',
+      description: 'From payroll management to strategic HR consulting, we provide end-to-end solutions that empower your organization to focus on what matters most - growing your business.',
+      heroTitle: 'Transform Your Business with',
+      heroSubtitle: 'Fortune Technologies',
+      heroDescription: 'From payroll management to strategic HR consulting, we provide end-to-end solutions that empower your organization to focus on what matters most - growing your business.',
+      ctaText: 'Start Free Trial',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Schedule Consultation',
+      ctaSecondaryLink: '/contact',
+      isActive: true
+    },
+    {
+      pageKey: 'payroll',
+      title: 'Advanced Payroll Management',
+      subtitle: 'Streamline Your Payroll Operations',
+      description: 'Streamline your payroll operations with our comprehensive, compliant, and automated payroll management system. Trusted by 5,000+ businesses across Kenya.',
+      heroTitle: 'Advanced Payroll',
+      heroSubtitle: 'Management',
+      heroDescription: 'Streamline your payroll operations with our comprehensive, compliant, and automated payroll management system. Trusted by 5,000+ businesses across Kenya.',
+      ctaText: 'Get Started Today',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Schedule Demo',
+      ctaSecondaryLink: '/contact',
+      isActive: true
+    }
+  ];
+
+  for (const content of pageContents) {
+    await prisma.pageContent.create({
+      data: content
+    });
+  }
+  console.log('✅ Page contents created');
+
+  // Call to Actions
+  await prisma.callToAction.deleteMany({});
+  const callToActions = [
+    {
+      pageKey: 'services',
+      title: 'Ready to Get Started?',
+      description: 'Join over 5,000 companies that trust Fortune Technologies with their HR operations. Start your transformation today with a free consultation.',
+      primaryText: 'Get Free Consultation',
+      primaryLink: '/contact',
+      secondaryText: 'Contact Sales Team',
+      secondaryLink: '/contact',
+      bgColor: 'bg-gradient-to-r from-blue-600 to-blue-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'payroll',
+      title: 'Ready to Transform Your Payroll Management?',
+      description: 'Join thousands of businesses who trust Fortune Technologies for their payroll needs.',
+      primaryText: 'Start Free Trial',
+      primaryLink: '/contact',
+      secondaryText: 'Contact Sales Team',
+      secondaryLink: '/contact',
+      bgColor: 'bg-gradient-to-r from-blue-600 to-orange-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    }
+  ];
+
+  for (const cta of callToActions) {
+    await prisma.callToAction.create({
+      data: cta
+    });
+  }
+  console.log('✅ Call-to-actions created');
 
   console.log('✅ Database seeded successfully');
 }
