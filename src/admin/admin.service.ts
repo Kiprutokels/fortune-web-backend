@@ -8,6 +8,11 @@ import { UpdateServicesDto } from './dto/update-services.dto';
 import { UpdateTestimonialsDto } from './dto/update-testimonials.dto';
 import { UpdateStatsDto } from './dto/update-stats.dto';
 import { UpdateSectionContentDto } from './dto/update-section-content.dto';
+import { UpdateFooterDto } from './dto/update-footer.dto';
+import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
+import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
+import { UpdatePageContentDto } from './dto/update-page-content.dto';
+import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
 import { ApiResponse } from '../common/interfaces/response.interface';
 
 @Injectable()
@@ -196,8 +201,12 @@ export class AdminService {
               features: service.features,
               benefits: service.benefits || [],
               imageUrl: service.imageUrl,
+              heroImageUrl: service.heroImageUrl,
+              processImageUrl: service.processImageUrl,
+              complianceImageUrl: service.complianceImageUrl,
               isActive: service.isActive !== false,
               isFeatured: service.isFeatured || false,
+              isPopular: service.isPopular || false,
               position: service.position,
               price: service.price,
               buttonText: service.buttonText || 'Learn More',
@@ -332,6 +341,254 @@ export class AdminService {
       return { success: true, message: 'Section content updated successfully' };
     } catch (error) {
       throw new BadRequestException('Failed to update section content');
+    }
+  }
+
+  // Footer Management
+  async updateFooter(updateFooterDto: UpdateFooterDto): Promise<ApiResponse> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // Delete existing footer data
+        await tx.footerLink.deleteMany({});
+        await tx.footerSection.deleteMany({});
+
+        // Create new footer sections and links
+        for (const section of updateFooterDto.sections) {
+          const createdSection = await tx.footerSection.create({
+            data: {
+              title: section.title,
+              position: section.position,
+              isActive: section.isActive !== false,
+            },
+          });
+
+          // Create links for this section
+          for (const link of section.links) {
+            await tx.footerLink.create({
+              data: {
+                footerSectionId: createdSection.id,
+                name: link.name,
+                href: link.href,
+                position: link.position,
+                isActive: link.isActive !== false,
+              },
+            });
+          }
+        }
+      });
+
+      return { success: true, message: 'Footer updated successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to update footer');
+    }
+  }
+
+  async getFooterContent(): Promise<ApiResponse> {
+    try {
+      const sections = await this.prisma.footerSection.findMany({
+        where: { isActive: true },
+        include: {
+          links: {
+            where: { isActive: true },
+            orderBy: { position: 'asc' },
+          },
+        },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: { sections } };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch footer content');
+    }
+  }
+
+  // Contact Info Management
+  async updateContactInfo(updateContactInfoDto: UpdateContactInfoDto): Promise<ApiResponse> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.contactInfo.deleteMany({});
+        
+        for (const info of updateContactInfoDto.contactInfo) {
+          await tx.contactInfo.create({
+            data: {
+              type: info.type,
+              label: info.label,
+              value: info.value,
+              icon: info.icon,
+              position: info.position,
+              isActive: info.isActive !== false,
+            },
+          });
+        }
+      });
+
+      return { success: true, message: 'Contact info updated successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to update contact info');
+    }
+  }
+
+  async getContactInfo(): Promise<ApiResponse> {
+    try {
+      const contactInfo = await this.prisma.contactInfo.findMany({
+        where: { isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: contactInfo };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch contact info');
+    }
+  }
+
+  // Social Links Management
+  async updateSocialLinks(updateSocialLinksDto: UpdateSocialLinksDto): Promise<ApiResponse> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.socialLink.deleteMany({});
+        
+        for (const link of updateSocialLinksDto.socialLinks) {
+          await tx.socialLink.create({
+            data: {
+              name: link.name,
+              icon: link.icon,
+              href: link.href,
+              position: link.position,
+              isActive: link.isActive !== false,
+            },
+          });
+        }
+      });
+
+      return { success: true, message: 'Social links updated successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to update social links');
+    }
+  }
+
+  async getSocialLinks(): Promise<ApiResponse> {
+    try {
+      const socialLinks = await this.prisma.socialLink.findMany({
+        where: { isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: socialLinks };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch social links');
+    }
+  }
+
+  // Page Content Management
+  async updatePageContent(updatePageContentDto: UpdatePageContentDto): Promise<ApiResponse> {
+    try {
+      await this.prisma.pageContent.upsert({
+        where: { pageKey: updatePageContentDto.pageKey },
+        update: {
+          title: updatePageContentDto.title,
+          subtitle: updatePageContentDto.subtitle,
+          description: updatePageContentDto.description,
+          heroTitle: updatePageContentDto.heroTitle,
+          heroSubtitle: updatePageContentDto.heroSubtitle,
+          heroDescription: updatePageContentDto.heroDescription,
+          heroImageUrl: updatePageContentDto.heroImageUrl,
+          processImageUrl: updatePageContentDto.processImageUrl,
+          complianceImageUrl: updatePageContentDto.complianceImageUrl,
+          ctaText: updatePageContentDto.ctaText,
+          ctaLink: updatePageContentDto.ctaLink,
+          ctaSecondaryText: updatePageContentDto.ctaSecondaryText,
+          ctaSecondaryLink: updatePageContentDto.ctaSecondaryLink,
+          metadata: updatePageContentDto.metadata,
+          isActive: updatePageContentDto.isActive !== false,
+        },
+        create: {
+          pageKey: updatePageContentDto.pageKey,
+          title: updatePageContentDto.title,
+          subtitle: updatePageContentDto.subtitle,
+          description: updatePageContentDto.description,
+          heroTitle: updatePageContentDto.heroTitle,
+          heroSubtitle: updatePageContentDto.heroSubtitle,
+          heroDescription: updatePageContentDto.heroDescription,
+          heroImageUrl: updatePageContentDto.heroImageUrl,
+          processImageUrl: updatePageContentDto.processImageUrl,
+          complianceImageUrl: updatePageContentDto.complianceImageUrl,
+          ctaText: updatePageContentDto.ctaText,
+          ctaLink: updatePageContentDto.ctaLink,
+          ctaSecondaryText: updatePageContentDto.ctaSecondaryText,
+          ctaSecondaryLink: updatePageContentDto.ctaSecondaryLink,
+          metadata: updatePageContentDto.metadata,
+          isActive: updatePageContentDto.isActive !== false,
+        },
+      });
+
+      return { success: true, message: 'Page content updated successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to update page content');
+    }
+  }
+
+  async getPageContent(pageKey: string): Promise<ApiResponse> {
+    try {
+      const pageContent = await this.prisma.pageContent.findUnique({
+        where: { pageKey },
+      });
+
+      return { success: true, data: pageContent };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch page content');
+    }
+  }
+
+  // Call to Action Management
+  async updateCallToActions(updateCallToActionDto: UpdateCallToActionDto): Promise<ApiResponse> {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        // Get all unique page keys from the request
+        const pageKeys = [...new Set(updateCallToActionDto.ctas.map(cta => cta.pageKey))];
+        
+        // Delete existing CTAs for these pages
+        for (const pageKey of pageKeys) {
+          await tx.callToAction.deleteMany({
+            where: { pageKey },
+          });
+        }
+        
+        // Create new CTAs
+        for (const cta of updateCallToActionDto.ctas) {
+          await tx.callToAction.create({
+            data: {
+              pageKey: cta.pageKey,
+              title: cta.title,
+              description: cta.description,
+              primaryText: cta.primaryText,
+              primaryLink: cta.primaryLink,
+              secondaryText: cta.secondaryText,
+              secondaryLink: cta.secondaryLink,
+              bgColor: cta.bgColor,
+              textColor: cta.textColor,
+              position: cta.position,
+              isActive: cta.isActive !== false,
+            },
+          });
+        }
+      });
+
+      return { success: true, message: 'Call-to-actions updated successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to update call-to-actions');
+    }
+  }
+
+  async getCallToActions(pageKey: string): Promise<ApiResponse> {
+    try {
+      const ctas = await this.prisma.callToAction.findMany({
+        where: { pageKey, isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: ctas };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch call-to-actions');
     }
   }
 }
