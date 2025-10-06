@@ -57,6 +57,21 @@ class ServiceDto {
   @IsString()
   imageUrl?: string;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  heroImageUrl?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  processImageUrl?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  complianceImageUrl?: string;
+
   @ApiProperty({ default: true })
   @IsOptional()
   @IsBoolean()
@@ -66,6 +81,11 @@ class ServiceDto {
   @IsOptional()
   @IsBoolean()
   isFeatured?: boolean;
+
+  @ApiProperty({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  isPopular?: boolean;
 
   @ApiProperty()
   @IsNumber()
