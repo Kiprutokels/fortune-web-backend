@@ -121,8 +121,12 @@ model Service {
   features    Json
   benefits    Json?
   imageUrl    String?
+  heroImageUrl String?
+  processImageUrl String?
+  complianceImageUrl String?
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
+  isPopular   Boolean  @default(false)
   position    Int      @default(0)
   price       String?
   buttonText  String   @default("Learn More")
@@ -140,7 +144,7 @@ model Testimonial {
   company   String
   content   String   @db.Text
   rating    Int      @default(5)
-  avatar    String
+  avatar    String   @db.Text
   results   Json
   service   String?
   isActive  Boolean  @default(true)
@@ -172,9 +176,121 @@ model SectionContent {
   title       String
   subtitle    String?  @db.Text
   description String?  @db.Text
+  imageUrl    String?
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("section_contents")
+}
+
+model FooterSection {
+  id          String       @id @default(cuid())
+  title       String
+  position    Int
+  isActive    Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  links       FooterLink[]
+
+  @@map("footer_sections")
+}
+
+model FooterLink {
+  id              String        @id @default(cuid())
+  footerSectionId String
+  name            String
+  href            String
+  position        Int
+  isActive        Boolean       @default(true)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  footerSection   FooterSection @relation(fields: [footerSectionId], references: [id], onDelete: Cascade)
+
+  @@map("footer_links")
+}
+
+model ContactInfo {
+  id          String   @id @default(cuid())
+  type        String
+  label       String
+  value       String
+  icon        String?
+  isActive    Boolean  @default(true)
+  position    Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_info")
+}
+
+model SocialLink {
+  id        String   @id @default(cuid())
+  name      String
+  icon      String
+  href      String
+  isActive  Boolean  @default(true)
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("social_links")
+}
+
+model PageContent {
+  id          String   @id @default(cuid())
+  pageKey     String   @unique
+  title       String
+  subtitle    String?  @db.Text
+  description String?  @db.Text
+  heroTitle   String?
+  heroSubtitle String? @db.Text
+  heroDescription String? @db.Text
+  heroImageUrl String?
+  processImageUrl String?
+  complianceImageUrl String?
+  ctaText     String?
+  ctaLink     String?
+  ctaSecondaryText String?
+  ctaSecondaryLink String?
+  metadata    Json?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("page_contents")
+}
+
+model CallToAction {
+  id          String   @id @default(cuid())
+  pageKey     String
+  title       String
+  description String?  @db.Text
+  primaryText String
+  primaryLink String
+  secondaryText String?
+  secondaryLink String?
+  bgColor     String?  @default("bg-gradient-to-r from-blue-600 to-blue-500")
+  textColor   String?  @default("text-white")
+  position    Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("call_to_actions")
+}
+
+model FileUpload {
+  id          String   @id @default(cuid())
+  filename    String
+  originalName String
+  mimetype    String
+  size        Int
+  path        String
+  url         String
+  uploadedBy  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("file_uploads")
 }
