@@ -27,12 +27,6 @@ export class PublicController {
     return this.publicService.getServices();
   }
 
-  @Get('testimonials')
-  @ApiOperation({ summary: 'Get all active testimonials' })
-  async getTestimonials() {
-    return this.publicService.getTestimonials();
-  }
-
   @Get('stats')
   @ApiOperation({ summary: 'Get all active stats' })
   async getStats() {
@@ -44,4 +38,48 @@ export class PublicController {
   async getSectionContent(@Param('sectionKey') sectionKey: string) {
     return this.publicService.getSectionContent(sectionKey);
   }
+
+   @Get('footer')
+  @ApiOperation({ summary: 'Get complete footer content' })
+  @ApiResponse({ status: 200, description: 'Footer content retrieved successfully' })
+  async getFooter() {
+    return this.publicService.getFooter();
+  }
+
+  @Get('contact-info')
+  @ApiOperation({ summary: 'Get contact information' })
+  async getContactInfo() {
+    return this.publicService.getContactInfo();
+  }
+
+  @Get('social-links')
+  @ApiOperation({ summary: 'Get social media links' })
+  async getSocialLinks() {
+    return this.publicService.getSocialLinks();
+  }
+
+  @Get('page-content/:pageKey')
+  @ApiOperation({ summary: 'Get page-specific content' })
+  async getPageContent(@Param('pageKey') pageKey: string) {
+    return this.publicService.getPageContent(pageKey);
+  }
+
+  @Get('call-to-actions/:pageKey')
+  @ApiOperation({ summary: 'Get call-to-actions for specific page' })
+  async getCallToActions(@Param('pageKey') pageKey: string) {
+    return this.publicService.getCallToActions(pageKey);
+  }
+
+  @Get('services/:slug')
+  @ApiOperation({ summary: 'Get service by slug' })
+  async getServiceBySlug(@Param('slug') slug: string) {
+    return this.publicService.getServiceBySlug(slug);
+  }
+
+  @Get('testimonials')
+  @ApiOperation({ summary: 'Get all active testimonials' })
+  async getTestimonials() {
+    return this.publicService.getTestimonials();
+  }
+
 }
