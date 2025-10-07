@@ -118,12 +118,18 @@ model Service {
   shortDesc   String?  @db.Text
   icon        String
   color       String   @default("bg-primary-100 text-primary-600")
+  category    String?
   features    Json
   benefits    Json?
+  processSteps Json?
+  complianceItems Json?
   imageUrl    String?
   heroImageUrl String?
   processImageUrl String?
   complianceImageUrl String?
+  onQuote     Boolean  @default(true)
+  hasProcess  Boolean  @default(false)
+  hasCompliance Boolean @default(false)
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   isPopular   Boolean  @default(false)
@@ -131,6 +137,7 @@ model Service {
   price       String?
   buttonText  String   @default("Learn More")
   buttonLink  String?
+  metadata    Json?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -147,6 +154,7 @@ model Testimonial {
   avatar    String   @db.Text
   results   Json
   service   String?
+  category  String?
   isActive  Boolean  @default(true)
   isFeatured Boolean @default(false)
   position  Int      @default(0)
@@ -293,4 +301,20 @@ model FileUpload {
   updatedAt   DateTime @updatedAt
 
   @@map("file_uploads")
+}
+model ContactSubmission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  company     String?
+  service     String
+  message     String   @db.Text
+  status      String   @default("pending") // pending, contacted, closed
+  source      String?  // contact-form, service-page
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("contact_submissions")
 }
