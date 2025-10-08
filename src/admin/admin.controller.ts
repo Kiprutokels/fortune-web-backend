@@ -17,8 +17,10 @@ import {
   ApiResponse, 
   ApiBearerAuth,
   ApiConsumes, 
-  ApiBody
+  ApiBody,
+  ApiParam
 } from '@nestjs/swagger';
+import { ApiErrorResponses } from '../common/decorators/api-response.decorator';
 import { AdminService } from './admin.service';
 import { UploadService } from '../upload/upload.service';
 import { UpdateNavigationDto } from './dto/update-navigation.dto';
@@ -34,6 +36,7 @@ import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdatePageContentDto } from './dto/update-page-content.dto';
 import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
+import { UpdateConsultationFormConfigDto } from './dto/consultation-form-config.dto';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -46,7 +49,10 @@ export class AdminController {
 
   // File Upload
   @Post('upload')
-  @ApiOperation({ summary: 'Upload file for admin use' })
+  @ApiOperation({ 
+    summary: 'Upload file for admin use',
+    description: 'Upload files for use in the admin panel. Supports images, documents, and other file types.'
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -55,11 +61,49 @@ export class AdminController {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'File to upload (images, documents, etc.)'
         },
       },
+      required: ['file']
     },
   })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'File uploaded successfully' },
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'file-123' },
+            filename: { type: 'string', example: 'image.jpg' },
+            originalName: { type: 'string', example: 'my-image.jpg' },
+            mimetype: { type: 'string', example: 'image/jpeg' },
+            size: { type: 'number', example: 1024000 },
+            url: { type: 'string', example: '/uploads/image.jpg' },
+            uploadedBy: { type: 'string', example: 'admin' }
+          }
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'No file provided or invalid file type',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'No file provided' },
+        statusCode: { type: 'number', example: 400 }
+      }
+    }
+  })
   @UseInterceptors(FileInterceptor('file'))
+  @ApiErrorResponses()
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new BadRequestException('No file provided');
@@ -69,7 +113,39 @@ export class AdminController {
   }
 
   @Delete('uploads/:id')
-  @ApiOperation({ summary: 'Delete uploaded file' })
+  @ApiOperation({ 
+    summary: 'Delete uploaded file',
+    description: 'Delete a previously uploaded file by its ID'
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'File ID to delete',
+    example: 'file-123'
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'File deleted successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'File deleted successfully' }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'File not found',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: false },
+        message: { type: 'string', example: 'File not found' },
+        statusCode: { type: 'number', example: 404 }
+      }
+    }
+  })
+  @ApiErrorResponses()
   async deleteUpload(@Param('id') id: string) {
     return this.uploadService.deleteFile(id);
   }
@@ -216,5 +292,38 @@ export class AdminController {
   @ApiOperation({ summary: 'Get CTAs for specific page' })
   async getCallToActions(@Param('pageKey') pageKey: string) {
     return this.adminService.getCallToActions(pageKey);
+  }
+
+  // Consultation Requests Management
+  @Get('consultations')
+  @ApiOperation({ summary: 'Get all consultation requests' })
+  @ApiResponse({ status: 200, description: 'Consultation requests retrieved successfully' })
+  async getConsultations() {
+    return this.adminService.getConsultations();
+  }
+
+  @Put('consultations/:id/status')
+  @ApiOperation({ summary: 'Update consultation request status' })
+  @ApiResponse({ status: 200, description: 'Consultation request status updated successfully' })
+  async updateConsultationStatus(
+    @Param('id') id: string,
+    @Body() body: { status: string }
+  ) {
+    return this.adminService.updateConsultationStatus(id, body.status);
+  }
+
+  // Consultation Form Configuration Management
+  @Get('consultation-form-config')
+  @ApiOperation({ summary: 'Get consultation form configuration' })
+  @ApiResponse({ status: 200, description: 'Consultation form configuration retrieved successfully' })
+  async getConsultationFormConfig() {
+    return this.adminService.getConsultationFormConfig();
+  }
+
+  @Put('consultation-form-config')
+  @ApiOperation({ summary: 'Update consultation form configuration' })
+  @ApiResponse({ status: 200, description: 'Consultation form configuration updated successfully' })
+  async updateConsultationFormConfig(@Body() dto: UpdateConsultationFormConfigDto) {
+    return this.adminService.updateConsultationFormConfig(dto);
   }
 }

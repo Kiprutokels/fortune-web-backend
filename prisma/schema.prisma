@@ -125,6 +125,7 @@ model Service {
   processImageUrl String?
   complianceImageUrl String?
   isActive    Boolean  @default(true)
+  onQuote     Boolean  @default(false)
   isFeatured  Boolean  @default(false)
   isPopular   Boolean  @default(false)
   position    Int      @default(0)
@@ -293,4 +294,37 @@ model FileUpload {
   updatedAt   DateTime @updatedAt
 
   @@map("file_uploads")
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  leadType        String   @default("consultation") // contact, demo, consultation
+  fullName        String
+  email           String
+  phone           String?
+  company         String?
+  serviceInterest String?
+  projectDetails  String?  @db.Text
+  message         String?  @db.Text
+  source          String?  @default("website")
+  status          String   @default("new") // new, in_progress, closed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("leads")
+}
+
+model ConsultationFormConfig {
+  id          String   @id @default(cuid())
+  formTitle   String   @default("Request Free Consultation")
+  formSubtitle String? @default("Fill out the form and we'll get back to you within 24 hours.")
+  fields      Json     // Array of form field configurations
+  services    Json     // Array of available services
+  submitText  String   @default("Send Message")
+  successMessage String @default("Thank you! We'll contact you within 24 hours.")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("consultation_form_configs")
 }

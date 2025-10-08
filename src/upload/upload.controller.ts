@@ -12,7 +12,8 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth, ApiBody, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiErrorResponses } from '../common/decorators/api-response.decorator';
 import type { Response } from 'express';
 import { UploadService } from './upload.service';
 import * as path from 'path';
@@ -24,7 +25,10 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Upload a file' })
+  @ApiOperation({ 
+    summary: 'Upload a file',
+    description: 'Upload files to the server. Supports various file types including images, documents, and media files.'
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -33,15 +37,48 @@ export class UploadController {
         file: {
           type: 'string',
           format: 'binary',
+          description: 'File to upload (required)'
         },
         uploadedBy: {
           type: 'string',
-          description: 'Optional uploader identifier'
+          description: 'Optional uploader identifier for tracking'
         }
       },
+      required: ['file']
     },
   })
+  @ApiQuery({
+    name: 'uploadedBy',
+    required: false,
+    description: 'Identifier for who uploaded the file',
+    example: 'admin'
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'File uploaded successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean', example: true },
+        message: { type: 'string', example: 'File uploaded successfully' },
+        data: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', example: 'file-123' },
+            filename: { type: 'string', example: 'document.pdf' },
+            originalName: { type: 'string', example: 'my-document.pdf' },
+            mimetype: { type: 'string', example: 'application/pdf' },
+            size: { type: 'number', example: 2048000 },
+            url: { type: 'string', example: '/uploads/document.pdf' },
+            uploadedBy: { type: 'string', example: 'admin' },
+            uploadedAt: { type: 'string', example: '2024-01-15T10:30:00Z' }
+          }
+        }
+      }
+    }
+  })
   @UseInterceptors(FileInterceptor('file'))
+  @ApiErrorResponses()
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
     @Query('uploadedBy') uploadedBy?: string,

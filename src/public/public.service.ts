@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { ApiResponse } from 'src/common/interfaces/response.interface';
+import { ConsultationDto } from './dto/consultation.dto';
 
 @Injectable()
 export class PublicService {
@@ -227,6 +228,37 @@ export class PublicService {
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new Error('Failed to fetch section content');
+    }
+  }
+
+  async submitConsultation(consultationDto: ConsultationDto): Promise<ApiResponse> {
+    try {
+      const lead = await this.prisma.lead.create({
+        data: {
+          leadType: 'consultation',
+          fullName: consultationDto.fullName,
+          email: consultationDto.email,
+          phone: consultationDto.phone,
+          company: consultationDto.company,
+          serviceInterest: consultationDto.service,
+          projectDetails: consultationDto.details,
+          message: consultationDto.details, // Using details as message for now
+          source: 'website',
+          status: 'new',
+        },
+      });
+
+      return {
+        success: true,
+        message: 'Consultation request submitted successfully. We will get back to you within 24 hours.',
+        data: {
+          id: lead.id,
+          submittedAt: lead.createdAt,
+        },
+      };
+    } catch (error) {
+      console.error('Failed to submit consultation:', error);
+      throw new Error('Failed to submit consultation request. Please try again.');
     }
   }
 }
