@@ -36,7 +36,6 @@ import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdatePageContentDto } from './dto/update-page-content.dto';
 import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
-import { UpdateConsultationFormConfigDto } from './dto/consultation-form-config.dto';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -312,18 +311,4 @@ export class AdminController {
     return this.adminService.updateConsultationStatus(id, body.status);
   }
 
-  // Consultation Form Configuration Management
-  @Get('consultation-form-config')
-  @ApiOperation({ summary: 'Get consultation form configuration' })
-  @ApiResponse({ status: 200, description: 'Consultation form configuration retrieved successfully' })
-  async getConsultationFormConfig() {
-    return this.adminService.getConsultationFormConfig();
-  }
-
-  @Put('consultation-form-config')
-  @ApiOperation({ summary: 'Update consultation form configuration' })
-  @ApiResponse({ status: 200, description: 'Consultation form configuration updated successfully' })
-  async updateConsultationFormConfig(@Body() dto: UpdateConsultationFormConfigDto) {
-    return this.adminService.updateConsultationFormConfig(dto);
-  }
 }
