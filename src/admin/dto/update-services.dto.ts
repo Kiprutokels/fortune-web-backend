@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsNotEmpty, IsOptional, IsString, IsNumber, ValidateNested } from 'class-validator';
+import { IsArray, IsOptional, IsString, IsBoolean, IsNumber, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
 
-class ServiceDto {
+export class ServiceDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
@@ -10,17 +10,14 @@ class ServiceDto {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   title: string;
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   slug: string;
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   description: string;
 
   @ApiProperty({ required: false })
@@ -30,27 +27,35 @@ class ServiceDto {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   icon: string;
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   color: string;
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @ApiProperty()
   @IsArray()
-  @IsString({ each: true })
   features: string[];
 
   @ApiProperty({ required: false })
   @IsOptional()
-  benefits?: Array<{
-    title: string;
-    description: string;
-    stat: string;
-    statLabel: string;
-  }>;
+  @IsArray()
+  benefits?: any[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  processSteps?: any[];
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsArray()
+  complianceItems?: any[];
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -71,6 +76,21 @@ class ServiceDto {
   @IsOptional()
   @IsString()
   complianceImageUrl?: string;
+
+  @ApiProperty({ default: true })
+  @IsOptional()
+  @IsBoolean()
+  onQuote?: boolean;
+
+  @ApiProperty({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasProcess?: boolean;
+
+  @ApiProperty({ default: false })
+  @IsOptional()
+  @IsBoolean()
+  hasCompliance?: boolean;
 
   @ApiProperty({ default: true })
   @IsOptional()
@@ -105,6 +125,10 @@ class ServiceDto {
   @IsOptional()
   @IsString()
   buttonLink?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  metadata?: any;
 }
 
 export class UpdateServicesDto {

@@ -1,4 +1,3 @@
-
 import {
   Controller,
   Post,
@@ -12,10 +11,17 @@ import {
   Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiConsumes,
+  ApiBearerAuth,
+  ApiBody,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { UploadService } from './upload.service';
 import * as path from 'path';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('File Upload')
 @ApiBearerAuth()
@@ -36,8 +42,8 @@ export class UploadController {
         },
         uploadedBy: {
           type: 'string',
-          description: 'Optional uploader identifier'
-        }
+          description: 'Optional uploader identifier',
+        },
       },
     },
   })
@@ -74,10 +80,14 @@ export class UploadController {
 }
 
 // Serve static files
+@Public()
 @Controller()
 export class StaticController {
   @Get('uploads/:filename')
-  async serveUploadedFile(@Param('filename') filename: string, @Res() res: Response) {
+  async serveUploadedFile(
+    @Param('filename') filename: string,
+    @Res() res: Response,
+  ) {
     const filePath = path.join(process.cwd(), 'uploads', filename);
     return res.sendFile(filePath);
   }

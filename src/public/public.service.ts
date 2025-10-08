@@ -1,11 +1,200 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ApiResponse } from 'src/common/interfaces/response.interface';
+import { ApiResponse } from '../common/interfaces/response.interface';
+import { ServiceFiltersDto } from './dto/service-filters.dto';
+import { ContactSubmissionDto } from './dto/contact-submission.dto';
+import { TestimonialFiltersDto } from './dto/testimonial-filters.dto';
 
 @Injectable()
 export class PublicService {
   constructor(private prisma: PrismaService) {}
 
+  async getServices(filters: ServiceFiltersDto): Promise<ApiResponse> {
+    try {
+      const where: any = { isActive: true };
+
+      if (filters.category) where.category = filters.category;
+      if (filters.featured !== undefined) where.isFeatured = filters.featured;
+      if (filters.popular !== undefined) where.isPopular = filters.popular;
+      if (filters.onQuote !== undefined) where.onQuote = filters.onQuote;
+
+      const services = await this.prisma.service.findMany({
+        where,
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: services };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch services');
+    }
+  }
+
+  async getQuoteServices(): Promise<ApiResponse> {
+    console.log('✅ getQuoteServices() called');
+    try {
+      const services = await this.prisma.service.findMany({
+        where: { isActive: true, onQuote: true },
+        orderBy: { position: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          category: true,
+          position: true,
+        },
+      });
+
+      return { success: true, data: services };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch quote services');
+    }
+  }
+
+  async getServiceCategories(): Promise<ApiResponse> {
+    try {
+      const categories = await this.prisma.service.findMany({
+        where: { isActive: true, category: { not: null } },
+        select: { category: true },
+        distinct: ['category'],
+      });
+
+      const uniqueCategories = categories
+        .map((s) => s.category)
+        .filter(Boolean)
+        .sort();
+
+      return { success: true, data: uniqueCategories };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch service categories');
+    }
+  }
+
+  async getServiceBySlug(slug: string): Promise<ApiResponse> {
+    try {
+      const service = await this.prisma.service.findUnique({
+        where: { slug, isActive: true },
+      });
+
+      if (!service) {
+        throw new NotFoundException(`Service not found: ${slug}`);
+      }
+
+      return { success: true, data: service };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Failed to fetch service');
+    }
+  }
+
+  async getTestimonials(filters: TestimonialFiltersDto): Promise<ApiResponse> {
+    try {
+      const where: any = { isActive: true };
+
+      if (filters.service) where.service = filters.service;
+      if (filters.category) where.category = filters.category;
+      if (filters.featured !== undefined) where.isFeatured = filters.featured;
+      if (filters.rating) where.rating = { gte: filters.rating };
+
+      const testimonials = await this.prisma.testimonial.findMany({
+        where,
+        orderBy: { position: 'asc' },
+        take: filters.limit || undefined,
+      });
+
+      return { success: true, data: testimonials };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch testimonials');
+    }
+  }
+
+  async submitContact(contactData: ContactSubmissionDto): Promise<ApiResponse> {
+    try {
+      // Validate required fields
+      if (
+        !contactData.name ||
+        !contactData.email ||
+        !contactData.phone ||
+        !contactData.service ||
+        !contactData.message
+      ) {
+        throw new BadRequestException('Missing required fields');
+      }
+
+      const submission = await this.prisma.contactSubmission.create({
+        data: {
+          name: contactData.name.trim(),
+          email: contactData.email.trim().toLowerCase(),
+          phone: contactData.phone.trim(),
+          company: contactData.company?.trim() || null,
+          service: contactData.service.trim(),
+          message: contactData.message.trim(),
+          source: contactData.source || 'contact-form',
+          metadata: contactData.metadata || null,
+        },
+      });
+
+      // Here you could add email notification logic
+      // await this.emailService.sendContactNotification(submission);
+
+      return {
+        success: true,
+        message: "Thank you! We'll contact you within 24 hours.",
+        data: { id: submission.id },
+      };
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      throw new BadRequestException('Failed to submit contact form');
+    }
+  }
+
+  async getPageContent(pageKey: string): Promise<ApiResponse> {
+    try {
+      const pageContent = await this.prisma.pageContent.findUnique({
+        where: { pageKey, isActive: true },
+      });
+
+      if (!pageContent) {
+        throw new NotFoundException(`Page content not found for: ${pageKey}`);
+      }
+
+      return { success: true, data: pageContent };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Failed to fetch page content');
+    }
+  }
+
+  async getCallToActions(pageKey: string): Promise<ApiResponse> {
+    try {
+      const ctas = await this.prisma.callToAction.findMany({
+        where: { pageKey, isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: ctas };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch call-to-actions');
+    }
+  }
+
+  async getContactInfo(): Promise<ApiResponse> {
+    try {
+      const contactInfo = await this.prisma.contactInfo.findMany({
+        where: { isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: contactInfo };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch contact info');
+    }
+  }
+
+  // Existing methods remain the same
   async getNavigation() {
     const navItems = await this.prisma.navItem.findMany({
       where: { isActive: true },
@@ -26,9 +215,8 @@ export class PublicService {
       where: { isActive: true },
     });
 
-    // Transform data for frontend
     const dropdownData: Record<string, any> = {};
-    navItems.forEach(item => {
+    navItems.forEach((item) => {
       if (item.hasDropdown && item.dropdowns.length > 0) {
         dropdownData[item.key] = {
           title: item.dropdowns[0].title,
@@ -66,8 +254,51 @@ export class PublicService {
     };
   }
 
+  async getStats(): Promise<ApiResponse> {
+    try {
+      const stats = await this.prisma.stat.findMany({
+        where: { isActive: true },
+        orderBy: { position: 'asc' },
+      });
 
-   async getFooter(): Promise<ApiResponse> {
+      return { success: true, data: stats };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch stats');
+    }
+  }
+
+  async getSectionContent(sectionKey: string): Promise<ApiResponse> {
+    try {
+      const sectionContent = await this.prisma.sectionContent.findUnique({
+        where: { sectionKey, isActive: true },
+      });
+
+      if (!sectionContent) {
+        throw new NotFoundException(
+          `Section content not found for key: ${sectionKey}`,
+        );
+      }
+
+      return { success: true, data: sectionContent };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Failed to fetch section content');
+    }
+  }
+  async getSocialLinks(): Promise<ApiResponse> {
+    try {
+      const socialLinks = await this.prisma.socialLink.findMany({
+        where: { isActive: true },
+        orderBy: { position: 'asc' },
+      });
+
+      return { success: true, data: socialLinks };
+    } catch (error) {
+      throw new Error('Failed to fetch social links');
+    }
+  }
+
+  async getFooter(): Promise<ApiResponse> {
     try {
       const [sections, contactInfo, socialLinks] = await Promise.all([
         this.prisma.footerSection.findMany({
@@ -99,134 +330,7 @@ export class PublicService {
         },
       };
     } catch (error) {
-      throw new Error('Failed to fetch footer content');
-    }
-  }
-    async getContactInfo(): Promise<ApiResponse> {
-    try {
-      const contactInfo = await this.prisma.contactInfo.findMany({
-        where: { isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: contactInfo };
-    } catch (error) {
-      throw new Error('Failed to fetch contact info');
-    }
-  }
-
-  async getSocialLinks(): Promise<ApiResponse> {
-    try {
-      const socialLinks = await this.prisma.socialLink.findMany({
-        where: { isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: socialLinks };
-    } catch (error) {
-      throw new Error('Failed to fetch social links');
-    }
-  }
-
-  async getPageContent(pageKey: string): Promise<ApiResponse> {
-    try {
-      const pageContent = await this.prisma.pageContent.findUnique({
-        where: { pageKey, isActive: true },
-      });
-
-      if (!pageContent) {
-        throw new NotFoundException(`Page content not found for key: ${pageKey}`);
-      }
-
-      return { success: true, data: pageContent };
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new Error('Failed to fetch page content');
-    }
-  }
-
-  async getCallToActions(pageKey: string): Promise<ApiResponse> {
-    try {
-      const ctas = await this.prisma.callToAction.findMany({
-        where: { pageKey, isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: ctas };
-    } catch (error) {
-      throw new Error('Failed to fetch call-to-actions');
-    }
-  }
-  async getServices(): Promise<ApiResponse> {
-    try {
-      const services = await this.prisma.service.findMany({
-        where: { isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: services };
-    } catch (error) {
-      throw new Error('Failed to fetch services');
-    }
-  }
-
-  async getServiceBySlug(slug: string): Promise<ApiResponse> {
-    try {
-      const service = await this.prisma.service.findUnique({
-        where: { slug, isActive: true },
-      });
-
-      if (!service) {
-        throw new NotFoundException(`Service not found: ${slug}`);
-      }
-
-      return { success: true, data: service };
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new Error('Failed to fetch service');
-    }
-  }
-
-  async getTestimonials(): Promise<ApiResponse> {
-    try {
-      const testimonials = await this.prisma.testimonial.findMany({
-        where: { isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: testimonials };
-    } catch (error) {
-      throw new Error('Failed to fetch testimonials');
-    }
-  }
-
-  async getStats(): Promise<ApiResponse> {
-    try {
-      const stats = await this.prisma.stat.findMany({
-        where: { isActive: true },
-        orderBy: { position: 'asc' },
-      });
-
-      return { success: true, data: stats };
-    } catch (error) {
-      throw new Error('Failed to fetch stats');
-    }
-  }
-
-  async getSectionContent(sectionKey: string): Promise<ApiResponse> {
-    try {
-      const sectionContent = await this.prisma.sectionContent.findUnique({
-        where: { sectionKey, isActive: true },
-      });
-
-      if (!sectionContent) {
-        throw new NotFoundException(`Section content not found for key: ${sectionKey}`);
-      }
-
-      return { success: true, data: sectionContent };
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      throw new Error('Failed to fetch section content');
+      throw new BadRequestException('Failed to fetch footer content');
     }
   }
 }

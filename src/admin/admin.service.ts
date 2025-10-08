@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateNavigationDto } from './dto/update-navigation.dto';
 import { UpdateThemeDto } from './dto/update-theme.dto';
@@ -22,9 +27,11 @@ export class AdminService {
   constructor(private prisma: PrismaService) {}
 
   // Navigation Management
-  async updateNavigation(updateNavigationDto: UpdateNavigationDto): Promise<ApiResponse> {
+  async updateNavigation(
+    updateNavigationDto: UpdateNavigationDto,
+  ): Promise<ApiResponse> {
     this.logger.log('📝 Starting navigation update');
-    
+
     try {
       const { navItems, dropdownData } = updateNavigationDto;
 
@@ -82,7 +89,9 @@ export class AdminService {
                       name: item.name,
                       href: item.href,
                       description: item.description || '',
-                      features: Array.isArray(item.features) ? item.features : [],
+                      features: Array.isArray(item.features)
+                        ? item.features
+                        : [],
                       position: index + 1,
                       isActive: item.isActive !== false,
                       dropdownDataId: dropdown.id,
@@ -129,13 +138,15 @@ export class AdminService {
   }
 
   // Hero Management
-  async updateHeroDashboards(updateHeroDashboardsDto: UpdateHeroDashboardsDto): Promise<ApiResponse> {
+  async updateHeroDashboards(
+    updateHeroDashboardsDto: UpdateHeroDashboardsDto,
+  ): Promise<ApiResponse> {
     try {
       const { dashboards } = updateHeroDashboardsDto;
 
       await this.prisma.$transaction(async (tx) => {
         await tx.heroDashboard.deleteMany({});
-        
+
         for (const [index, dashboard] of dashboards.entries()) {
           await tx.heroDashboard.create({
             data: {
@@ -157,23 +168,32 @@ export class AdminService {
     }
   }
 
-  async updateHeroContent(updateHeroContentDto: UpdateHeroContentDto): Promise<ApiResponse> {
+  async updateHeroContent(
+    updateHeroContentDto: UpdateHeroContentDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.heroContent.updateMany({
         where: { isActive: true },
         data: {
-          trustBadge: updateHeroContentDto.trustBadge || 'Trusted by 5,000+ Companies',
+          trustBadge:
+            updateHeroContentDto.trustBadge || 'Trusted by 5,000+ Companies',
           mainHeading: updateHeroContentDto.mainHeading || 'Transform Your',
           subHeading: updateHeroContentDto.subHeading || 'HR Operations',
           tagline: updateHeroContentDto.tagline || 'with AI-Powered Solutions',
-          description: updateHeroContentDto.description || 'Streamline payroll, optimize talent management.',
-          trustPoints: Array.isArray(updateHeroContentDto.trustPoints) 
-            ? updateHeroContentDto.trustPoints 
+          description:
+            updateHeroContentDto.description ||
+            'Streamline payroll, optimize talent management.',
+          trustPoints: Array.isArray(updateHeroContentDto.trustPoints)
+            ? updateHeroContentDto.trustPoints
             : ['No Setup Fees', '24/7 Support', 'GDPR Compliant'],
-          primaryCtaText: updateHeroContentDto.primaryCtaText || 'Start Free Trial',
-          secondaryCtaText: updateHeroContentDto.secondaryCtaText || 'Schedule Demo',
+          primaryCtaText:
+            updateHeroContentDto.primaryCtaText || 'Start Free Trial',
+          secondaryCtaText:
+            updateHeroContentDto.secondaryCtaText || 'Schedule Demo',
           phoneNumber: updateHeroContentDto.phoneNumber || '0733769149',
-          chatWidgetUrl: updateHeroContentDto.chatWidgetUrl || 'https://rag-chat-widget.vercel.app/',
+          chatWidgetUrl:
+            updateHeroContentDto.chatWidgetUrl ||
+            'https://rag-chat-widget.vercel.app/',
         },
       });
 
@@ -184,11 +204,13 @@ export class AdminService {
   }
 
   // Services Management
-  async updateServices(updateServicesDto: UpdateServicesDto): Promise<ApiResponse> {
+  async updateServices(
+    updateServicesDto: UpdateServicesDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.service.deleteMany({});
-        
+
         for (const service of updateServicesDto.services) {
           await tx.service.create({
             data: {
@@ -198,12 +220,18 @@ export class AdminService {
               shortDesc: service.shortDesc,
               icon: service.icon,
               color: service.color,
+              category: service.category,
               features: service.features,
               benefits: service.benefits || [],
+              processSteps: service.processSteps || [],
+              complianceItems: service.complianceItems || [],
               imageUrl: service.imageUrl,
               heroImageUrl: service.heroImageUrl,
               processImageUrl: service.processImageUrl,
               complianceImageUrl: service.complianceImageUrl,
+              onQuote: service.onQuote !== false,
+              hasProcess: service.hasProcess || false,
+              hasCompliance: service.hasCompliance || false,
               isActive: service.isActive !== false,
               isFeatured: service.isFeatured || false,
               isPopular: service.isPopular || false,
@@ -211,6 +239,7 @@ export class AdminService {
               price: service.price,
               buttonText: service.buttonText || 'Learn More',
               buttonLink: service.buttonLink,
+              metadata: service.metadata,
             },
           });
         }
@@ -235,46 +264,151 @@ export class AdminService {
     }
   }
 
-  // Testimonials Management
-  async updateTestimonials(updateTestimonialsDto: UpdateTestimonialsDto): Promise<ApiResponse> {
+  async updateTestimonials(
+    updateTestimonialsDto: UpdateTestimonialsDto,
+  ): Promise<ApiResponse> {
+    this.logger.log('📝 Starting testimonials update');
+
     try {
-      await this.prisma.$transaction(async (tx) => {
-        await tx.testimonial.deleteMany({});
-        
-        for (const testimonial of updateTestimonialsDto.testimonials) {
-          await tx.testimonial.create({
-            data: {
-              name: testimonial.name,
-              role: testimonial.role,
-              company: testimonial.company,
-              content: testimonial.content,
-              rating: testimonial.rating || 5,
-              avatar: testimonial.avatar,
-              results: testimonial.results,
-              service: testimonial.service,
-              isActive: testimonial.isActive !== false,
-              isFeatured: testimonial.isFeatured || false,
-              position: testimonial.position,
-            },
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Step 1: Get all existing testimonial IDs from database
+        const existingTestimonials = await tx.testimonial.findMany({
+          select: { id: true },
+        });
+        const existingIds = new Set(existingTestimonials.map((t) => t.id));
+
+        // Step 2: Get valid IDs from incoming payload (exclude temp IDs)
+        const incomingIds = new Set(
+          updateTestimonialsDto.testimonials
+            .filter((t) => t.id && !t.id.startsWith('temp-'))
+            .map((t) => t.id!),
+        );
+
+        // Step 3: Determine which testimonials to delete (in DB but not in payload)
+        const idsToDelete = [...existingIds].filter(
+          (id) => !incomingIds.has(id),
+        );
+
+        let deletedCount = 0;
+        if (idsToDelete.length > 0) {
+          const deleteResult = await tx.testimonial.deleteMany({
+            where: { id: { in: idsToDelete } },
           });
+          deletedCount = deleteResult.count;
+          this.logger.log(`🗑️  Deleted ${deletedCount} testimonials`);
         }
+
+        // Step 4: Upsert each testimonial (create new or update existing)
+        let createdCount = 0;
+        let updatedCount = 0;
+
+        for (const testimonial of updateTestimonialsDto.testimonials) {
+          // Prepare data object
+          const data = {
+            name: testimonial.name.trim(),
+            role: testimonial.role.trim(),
+            company: testimonial.company.trim(),
+            content: testimonial.content.trim(),
+            rating: testimonial.rating ?? 5,
+            avatar: testimonial.avatar.trim(),
+            results: Array.isArray(testimonial.results)
+              ? testimonial.results
+                  .filter((r) => r && r.trim())
+                  .map((r) => r.trim())
+              : [],
+            service: testimonial.service?.trim() || null,
+            isActive: testimonial.isActive !== false,
+            isFeatured: testimonial.isFeatured || false,
+            position: testimonial.position,
+          };
+
+          // Check if this is an update or create
+          const isUpdate =
+            testimonial.id && !testimonial.id.startsWith('temp-');
+
+          if (isUpdate) {
+            // Try to update existing testimonial
+            const existing = await tx.testimonial.findUnique({
+              where: { id: testimonial.id },
+            });
+
+            if (existing) {
+              await tx.testimonial.update({
+                where: { id: testimonial.id },
+                data,
+              });
+              updatedCount++;
+            } else {
+              // ID provided but doesn't exist - create new
+              await tx.testimonial.create({ data });
+              createdCount++;
+              this.logger.warn(
+                `⚠️  Testimonial ID ${testimonial.id} not found, created as new`,
+              );
+            }
+          } else {
+            // Create new testimonial (no ID or temp ID)
+            await tx.testimonial.create({ data });
+            createdCount++;
+          }
+        }
+
+        this.logger.log(
+          `✅ Testimonials processed - Created: ${createdCount}, Updated: ${updatedCount}, Deleted: ${deletedCount}`,
+        );
+
+        return { createdCount, updatedCount, deletedCount };
       });
 
-      return { success: true, message: 'Testimonials updated successfully' };
+      return {
+        success: true,
+        message: 'Testimonials updated successfully',
+        data: result,
+      };
     } catch (error) {
-      throw new BadRequestException('Failed to update testimonials');
+      this.logger.error('❌ Testimonials update failed:', error);
+
+      // Handle specific errors
+      if (error.code === 'P2002') {
+        throw new BadRequestException('Duplicate testimonial detected');
+      }
+      if (error.code === 'P2025') {
+        throw new NotFoundException('Testimonial not found');
+      }
+
+      throw new BadRequestException(
+        error.message || 'Failed to update testimonials',
+      );
     }
   }
 
+  /**
+   * Delete a single testimonial by ID
+   */
   async deleteTestimonial(id: string): Promise<ApiResponse> {
+    this.logger.log(`🗑️  Deleting testimonial: ${id}`);
+
     try {
-      const testimonial = await this.prisma.testimonial.findUnique({ where: { id } });
-      if (!testimonial) throw new NotFoundException('Testimonial not found');
+      const testimonial = await this.prisma.testimonial.findUnique({
+        where: { id },
+      });
+
+      if (!testimonial) {
+        throw new NotFoundException('Testimonial not found');
+      }
 
       await this.prisma.testimonial.delete({ where: { id } });
-      return { success: true, message: 'Testimonial deleted successfully' };
+
+      this.logger.log(`✅ Testimonial deleted: ${id}`);
+      return {
+        success: true,
+        message: 'Testimonial deleted successfully',
+      };
     } catch (error) {
-      if (error instanceof NotFoundException) throw error;
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      this.logger.error(`❌ Failed to delete testimonial ${id}:`, error);
       throw new BadRequestException('Failed to delete testimonial');
     }
   }
@@ -284,7 +418,7 @@ export class AdminService {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.stat.deleteMany({});
-        
+
         for (const stat of updateStatsDto.stats) {
           await tx.stat.create({
             data: {
@@ -319,7 +453,9 @@ export class AdminService {
   }
 
   // Section Content Management
-  async updateSectionContent(updateSectionContentDto: UpdateSectionContentDto): Promise<ApiResponse> {
+  async updateSectionContent(
+    updateSectionContentDto: UpdateSectionContentDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.sectionContent.upsert({
         where: { sectionKey: updateSectionContentDto.sectionKey },
@@ -403,11 +539,13 @@ export class AdminService {
   }
 
   // Contact Info Management
-  async updateContactInfo(updateContactInfoDto: UpdateContactInfoDto): Promise<ApiResponse> {
+  async updateContactInfo(
+    updateContactInfoDto: UpdateContactInfoDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.contactInfo.deleteMany({});
-        
+
         for (const info of updateContactInfoDto.contactInfo) {
           await tx.contactInfo.create({
             data: {
@@ -442,11 +580,13 @@ export class AdminService {
   }
 
   // Social Links Management
-  async updateSocialLinks(updateSocialLinksDto: UpdateSocialLinksDto): Promise<ApiResponse> {
+  async updateSocialLinks(
+    updateSocialLinksDto: UpdateSocialLinksDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.$transaction(async (tx) => {
         await tx.socialLink.deleteMany({});
-        
+
         for (const link of updateSocialLinksDto.socialLinks) {
           await tx.socialLink.create({
             data: {
@@ -480,7 +620,9 @@ export class AdminService {
   }
 
   // Page Content Management
-  async updatePageContent(updatePageContentDto: UpdatePageContentDto): Promise<ApiResponse> {
+  async updatePageContent(
+    updatePageContentDto: UpdatePageContentDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.pageContent.upsert({
         where: { pageKey: updatePageContentDto.pageKey },
@@ -540,19 +682,23 @@ export class AdminService {
   }
 
   // Call to Action Management
-  async updateCallToActions(updateCallToActionDto: UpdateCallToActionDto): Promise<ApiResponse> {
+  async updateCallToActions(
+    updateCallToActionDto: UpdateCallToActionDto,
+  ): Promise<ApiResponse> {
     try {
       await this.prisma.$transaction(async (tx) => {
         // Get all unique page keys from the request
-        const pageKeys = [...new Set(updateCallToActionDto.ctas.map(cta => cta.pageKey))];
-        
+        const pageKeys = [
+          ...new Set(updateCallToActionDto.ctas.map((cta) => cta.pageKey)),
+        ];
+
         // Delete existing CTAs for these pages
         for (const pageKey of pageKeys) {
           await tx.callToAction.deleteMany({
             where: { pageKey },
           });
         }
-        
+
         // Create new CTAs
         for (const cta of updateCallToActionDto.ctas) {
           await tx.callToAction.create({
@@ -589,6 +735,64 @@ export class AdminService {
       return { success: true, data: ctas };
     } catch (error) {
       throw new BadRequestException('Failed to fetch call-to-actions');
+    }
+  }
+
+  async getContactSubmissions(): Promise<ApiResponse> {
+    try {
+      const submissions = await this.prisma.contactSubmission.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+
+      return { success: true, data: submissions };
+    } catch (error) {
+      throw new BadRequestException('Failed to fetch contact submissions');
+    }
+  }
+
+  async updateContactSubmissionStatus(
+    id: string,
+    status: string,
+  ): Promise<ApiResponse> {
+    try {
+      const submission = await this.prisma.contactSubmission.findUnique({
+        where: { id },
+      });
+
+      if (!submission) {
+        throw new NotFoundException('Contact submission not found');
+      }
+
+      await this.prisma.contactSubmission.update({
+        where: { id },
+        data: { status },
+      });
+
+      return { success: true, message: 'Status updated successfully' };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Failed to update status');
+    }
+  }
+
+  async deleteContactSubmission(id: string): Promise<ApiResponse> {
+    try {
+      const submission = await this.prisma.contactSubmission.findUnique({
+        where: { id },
+      });
+
+      if (!submission) {
+        throw new NotFoundException('Contact submission not found');
+      }
+
+      await this.prisma.contactSubmission.delete({
+        where: { id },
+      });
+
+      return { success: true, message: 'Submission deleted successfully' };
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
+      throw new BadRequestException('Failed to delete submission');
     }
   }
 }

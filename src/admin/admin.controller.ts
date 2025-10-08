@@ -1,23 +1,22 @@
-import { 
-  Controller, 
-  Put, 
-  Delete, 
-  Body, 
-  Param, 
+import {
+  Controller,
+  Put,
+  Delete,
+  Body,
+  Param,
   Get,
   Post,
   UseInterceptors,
   UploadedFile,
-  BadRequestException
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { 
-  ApiTags, 
-  ApiOperation, 
-  ApiResponse, 
+import {
+  ApiTags,
+  ApiOperation,
   ApiBearerAuth,
-  ApiConsumes, 
-  ApiBody
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { UploadService } from '../upload/upload.service';
@@ -34,6 +33,7 @@ import { UpdateContactInfoDto } from './dto/update-contact-info.dto';
 import { UpdateSocialLinksDto } from './dto/update-social-links.dto';
 import { UpdatePageContentDto } from './dto/update-page-content.dto';
 import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @ApiTags('Admin')
 @ApiBearerAuth()
@@ -41,7 +41,7 @@ import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
-    private readonly uploadService: UploadService
+    private readonly uploadService: UploadService,
   ) {}
 
   // File Upload
@@ -216,5 +216,26 @@ export class AdminController {
   @ApiOperation({ summary: 'Get CTAs for specific page' })
   async getCallToActions(@Param('pageKey') pageKey: string) {
     return this.adminService.getCallToActions(pageKey);
+  }
+  @Public()
+  @Get('contact-submissions')
+  @ApiOperation({ summary: 'Get all contact submissions' })
+  async getContactSubmissions() {
+    return this.adminService.getContactSubmissions();
+  }
+
+  @Put('contact-submissions/:id/status')
+  @ApiOperation({ summary: 'Update contact submission status' })
+  async updateContactSubmissionStatus(
+    @Param('id') id: string,
+    @Body() { status }: { status: string },
+  ) {
+    return this.adminService.updateContactSubmissionStatus(id, status);
+  }
+
+  @Delete('contact-submissions/:id')
+  @ApiOperation({ summary: 'Delete contact submission' })
+  async deleteContactSubmission(@Param('id') id: string) {
+    return this.adminService.deleteContactSubmission(id);
   }
 }
