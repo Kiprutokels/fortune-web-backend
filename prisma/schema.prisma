@@ -263,6 +263,8 @@ model PageContent {
   ctaSecondaryLink String?
   metadata    Json?
   isActive    Boolean  @default(true)
+  keywords    String?  @db.Text
+  metaDescription String? @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -296,12 +298,17 @@ model FileUpload {
   size        Int
   path        String
   url         String
+  fileType    String   @default("other") // image, video, document, other
   uploadedBy  String?
+  tags        Json?    // For categorizing and searching files
+  description String?  @db.Text
+  altText     String?  @db.Text
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@map("file_uploads")
 }
+
 model ContactSubmission {
   id          String   @id @default(cuid())
   name        String

@@ -35,6 +35,7 @@ import { UpdatePageContentDto } from './dto/update-page-content.dto';
 import { UpdateCallToActionDto } from './dto/update-call-to-action.dto';
 import { Public } from 'src/common/decorators/public.decorator';
 
+@Public()
 @ApiTags('Admin')
 @ApiBearerAuth()
 @Controller('admin')
@@ -192,7 +193,7 @@ export class AdminController {
     return this.adminService.getSocialLinks();
   }
 
-  // Page Content Management
+  // Page Content Management 
   @Put('page-content')
   @ApiOperation({ summary: 'Update page-specific content' })
   async updatePageContent(@Body() dto: UpdatePageContentDto) {
@@ -217,6 +218,7 @@ export class AdminController {
   async getCallToActions(@Param('pageKey') pageKey: string) {
     return this.adminService.getCallToActions(pageKey);
   }
+
   @Public()
   @Get('contact-submissions')
   @ApiOperation({ summary: 'Get all contact submissions' })

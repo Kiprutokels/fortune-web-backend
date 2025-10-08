@@ -72,6 +72,16 @@ export class UpdatePageContentDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @IsString()
+  keywords?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  metaDescription?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   metadata?: any;
 
   @ApiProperty({ default: true })

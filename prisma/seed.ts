@@ -267,7 +267,7 @@ async function main() {
   await prisma.service.deleteMany({});
 
   // Services
- const services = [
+  const services = [
     {
       title: 'Payroll Management',
       slug: 'payroll',
@@ -396,7 +396,7 @@ async function main() {
       color: 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-400',
       category: 'Technology',
       features: ['Employee Database', 'Document Management', 'Workflow Automation', 'Custom Reports'],
-      onQuote: false, // Not available for quotes
+      onQuote: false,
       hasProcess: false,
       hasCompliance: false,
       isActive: true,
@@ -420,34 +420,34 @@ async function main() {
   await prisma.testimonial.deleteMany({});
 
   // Testimonials
-const testimonials = [
-  {
-    name: 'Sarah Wanjiku',
-    role: 'HR Director',
-    company: 'Safaricom PLC',
-    content: 'Fortune Technologies completely transformed our HR operations. The payroll automation saved us 20 hours per week, and employee satisfaction increased by 45%.',
-    rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612c37c?w=150&h=150&fit=crop&crop=face',
-    results: ['20hrs saved weekly', '45% satisfaction boost', '100% compliance'],
-    service: 'payroll',
-    isActive: true,
-    isFeatured: true,
-    position: 1,
-  },
-  {
-    name: 'Michael Kiprotich',
-    role: 'CEO',
-    company: 'TechNova Kenya',
-    content: 'The AI-powered recruitment features helped us reduce hiring time by 60%. The integration with KRA and NSSF is seamless.',
-    rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    results: ['60% faster hiring', 'Seamless KRA integration', 'ROI in 2 months'],
-    service: 'recruitment',
-    isActive: true,
-    isFeatured: true,
-    position: 2,
-  },
-]
+  const testimonials = [
+    {
+      name: 'Sarah Wanjiku',
+      role: 'HR Director',
+      company: 'Safaricom PLC',
+      content: 'Fortune Technologies completely transformed our HR operations. The payroll automation saved us 20 hours per week, and employee satisfaction increased by 45%.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612c37c?w=150&h=150&fit=crop&crop=face',
+      results: ['20hrs saved weekly', '45% satisfaction boost', '100% compliance'],
+      service: 'payroll',
+      isActive: true,
+      isFeatured: true,
+      position: 1,
+    },
+    {
+      name: 'Michael Kiprotich',
+      role: 'CEO',
+      company: 'TechNova Kenya',
+      content: 'The AI-powered recruitment features helped us reduce hiring time by 60%. The integration with KRA and NSSF is seamless.',
+      rating: 5,
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      results: ['60% faster hiring', 'Seamless KRA integration', 'ROI in 2 months'],
+      service: 'recruitment',
+      isActive: true,
+      isFeatured: true,
+      position: 2,
+    },
+  ];
 
   for (const testimonial of testimonials) {
     await prisma.testimonial.create({ data: testimonial });
@@ -678,7 +678,7 @@ const testimonials = [
   }
   console.log('✅ Social links created');
 
-  // Page Contents
+  // PAGE CONTENTS - PROPERLY SEEDED FOR ALL PAGES
   await prisma.pageContent.deleteMany({});
   const pageContents = [
     {
@@ -696,17 +696,154 @@ const testimonials = [
       isActive: true
     },
     {
+      pageKey: 'about',
+      title: 'About Fortune Technologies',
+      subtitle: 'Leading HR Solutions Provider in Kenya',
+      description: 'Established in 2008, Fortune Technologies has been at the forefront of HR technology innovation in Kenya. We serve over 5,000 companies with comprehensive HR solutions.',
+      heroTitle: 'About Fortune',
+      heroSubtitle: 'Technologies',
+      heroDescription: 'Leading the way in HR technology and solutions across Kenya and East Africa. Trusted by over 5,000 companies for comprehensive HR management.',
+      ctaText: 'Learn Our Story',
+      ctaLink: '/about',
+      ctaSecondaryText: 'Contact Us',
+      ctaSecondaryLink: '/contact',
+      isActive: true
+    },
+    {
+      pageKey: 'contact',
+      title: 'Contact Fortune Technologies',
+      subtitle: 'Get In Touch With Our Expert Team',
+      description: 'Ready to transform your HR operations? Contact our expert team today for a free consultation and discover how we can help your business grow.',
+      heroTitle: 'Contact Our',
+      heroSubtitle: 'Expert Team',
+      heroDescription: 'Ready to transform your business? Get in touch with our experts for a free consultation and discover how we can help you succeed.',
+      ctaText: 'Schedule Call',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Send Message',
+      ctaSecondaryLink: '/contact',
+      isActive: true
+    },
+    {
+      pageKey: 'home',
+      title: 'Fortune Technologies - Complete HR Solutions Platform',
+      subtitle: 'Transform Your HR Operations',
+      description: 'Transform your HR operations with Fortune Technologies comprehensive suite of solutions. From payroll to recruitment, we have everything you need.',
+      heroTitle: 'Transform Your',
+      heroSubtitle: 'HR Operations',
+      heroDescription: 'Comprehensive HR solutions designed for modern businesses. Streamline payroll, optimize talent management, and enhance employee experiences.',
+      ctaText: 'Start Free Trial',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Schedule Demo',
+      ctaSecondaryLink: '/contact',
+      isActive: true
+    },
+    {
       pageKey: 'payroll',
-      title: 'Advanced Payroll Management',
+      title: 'Advanced Payroll Management System',
       subtitle: 'Streamline Your Payroll Operations',
       description: 'Streamline your payroll operations with our comprehensive, compliant, and automated payroll management system. Trusted by 5,000+ businesses across Kenya.',
       heroTitle: 'Advanced Payroll',
       heroSubtitle: 'Management',
       heroDescription: 'Streamline your payroll operations with our comprehensive, compliant, and automated payroll management system. Trusted by 5,000+ businesses across Kenya.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&h=600&fit=crop',
+      processImageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop',
+      complianceImageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop',
       ctaText: 'Get Started Today',
       ctaLink: '/contact',
       ctaSecondaryText: 'Schedule Demo',
       ctaSecondaryLink: '/contact',
+      isActive: true
+    },
+    {
+      pageKey: 'recruitment',
+      title: 'Professional Recruitment Services',
+      subtitle: 'Expert Talent Acquisition Solutions',
+      description: 'Professional recruitment and headhunting services for local and international companies. Our expert team helps you find and retain top talent.',
+      heroTitle: 'Professional Recruitment',
+      heroSubtitle: 'Services',
+      heroDescription: 'Professional recruitment and headhunting services for local and international companies. Find and retain top talent with our expert team.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&h=600&fit=crop',
+      processImageUrl: 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?w=600&h=400&fit=crop',
+      ctaText: 'Start Hiring',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'View Process',
+      ctaSecondaryLink: '/services/recruitment',
+      isActive: true
+    },
+    {
+      pageKey: 'attendance',
+      title: 'Smart Time & Attendance Management',
+      subtitle: 'Biometric Time Tracking Solutions',
+      description: 'Smart time tracking with automated scheduling, biometric integration, and comprehensive attendance management for accurate workforce monitoring.',
+      heroTitle: 'Smart Time &',
+      heroSubtitle: 'Attendance Management',
+      heroDescription: 'Smart time tracking with automated scheduling, biometric integration, and comprehensive attendance management for accurate workforce monitoring.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1551836022-deb4988cc6c0?w=800&h=600&fit=crop',
+      processImageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&h=400&fit=crop',
+      ctaText: 'Try It Now',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Learn More',
+      ctaSecondaryLink: '/services/attendance',
+      isActive: true
+    },
+    {
+      pageKey: 'consulting',
+      title: 'Strategic HR Consulting Services',
+      subtitle: 'Expert HR Strategy and Optimization',
+      description: 'Expert HR consulting services to optimize your human resource strategies and improve organizational performance with data-driven insights.',
+      heroTitle: 'Strategic HR',
+      heroSubtitle: 'Consulting',
+      heroDescription: 'Expert HR consulting services to optimize your human resource strategies and improve organizational performance with data-driven insights.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
+      ctaText: 'Consult Now',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'View Services',
+      ctaSecondaryLink: '/services/hr-consulting',
+      isActive: true
+    },
+    {
+      pageKey: 'outsourcing',
+      title: 'Professional Staff Outsourcing Solutions',
+      subtitle: 'Complete HR Outsourcing Services',
+      description: 'Complete staff outsourcing solutions allowing you to focus on core business while we handle all HR operations, payroll, and compliance.',
+      heroTitle: 'Professional Staff',
+      heroSubtitle: 'Outsourcing',
+      heroDescription: 'Complete staff outsourcing solutions allowing you to focus on core business while we handle all HR operations, payroll, and compliance.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=600&fit=crop',
+      ctaText: 'Get Started',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'Learn More',
+      ctaSecondaryLink: '/services/outsourcing',
+      isActive: true
+    },
+    {
+      pageKey: 'technology',
+      title: 'Advanced HR Technology Solutions',
+      subtitle: 'Cutting-Edge HR Software & Systems',
+      description: 'Advanced HR technology solutions including custom software development, system integration, and digital transformation services.',
+      heroTitle: 'Advanced HR',
+      heroSubtitle: 'Technology Solutions',
+      heroDescription: 'Cutting-edge HR technology solutions including custom software development, system integration, and digital transformation services.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=800&h=600&fit=crop',
+      ctaText: 'Explore Solutions',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'View Technology',
+      ctaSecondaryLink: '/technology',
+      isActive: true
+    },
+    {
+      pageKey: 'security',
+      title: 'Professional CCTV & Security Solutions',
+      subtitle: 'Complete Security Systems',
+      description: 'Professional CCTV installation and monitoring solutions for enhanced security and workplace safety with 24/7 monitoring capabilities.',
+      heroTitle: 'Professional CCTV &',
+      heroSubtitle: 'Security Solutions',
+      heroDescription: 'Professional CCTV installation and monitoring solutions for enhanced security and workplace safety with 24/7 monitoring capabilities.',
+      heroImageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop',
+      ctaText: 'Get Quote',
+      ctaLink: '/contact',
+      ctaSecondaryText: 'View Solutions',
+      ctaSecondaryLink: '/security/cctv',
       isActive: true
     }
   ];
@@ -716,7 +853,7 @@ const testimonials = [
       data: content
     });
   }
-  console.log('✅ Page contents created');
+  console.log('✅ Page contents created for ALL pages');
 
   // Call to Actions
   await prisma.callToAction.deleteMany({});
@@ -746,6 +883,110 @@ const testimonials = [
       textColor: 'text-white',
       position: 1,
       isActive: true
+    },
+    {
+      pageKey: 'recruitment',
+      title: 'Ready to Find Top Talent?',
+      description: 'Let our recruitment experts help you find and hire the best candidates for your organization.',
+      primaryText: 'Start Hiring',
+      primaryLink: '/contact',
+      secondaryText: 'Schedule Consultation',
+      secondaryLink: '/contact',
+      bgColor: 'bg-gradient-to-r from-orange-600 to-orange-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'attendance',
+      title: 'Ready to Modernize Time Tracking?',
+      description: 'Upgrade to smart biometric time tracking and eliminate manual attendance management.',
+      primaryText: 'Get Started',
+      primaryLink: '/contact',
+      secondaryText: 'Request Demo',
+      secondaryLink: '/contact',
+      bgColor: 'bg-gradient-to-r from-blue-600 to-purple-600',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'consulting',
+      title: 'Ready to Optimize Your HR Strategy?',
+      description: 'Get expert HR consulting to transform your human resource operations and drive business growth.',
+      primaryText: 'Book Consultation',
+      primaryLink: '/contact',
+      secondaryText: 'Learn More',
+      secondaryLink: '/services/hr-consulting',
+      bgColor: 'bg-gradient-to-r from-purple-600 to-purple-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'outsourcing',
+      title: 'Ready to Focus on Your Core Business?',
+      description: 'Let us handle all your HR operations while you focus on growing your business.',
+      primaryText: 'Get Started',
+      primaryLink: '/contact',
+      secondaryText: 'Learn About Process',
+      secondaryLink: '/services/outsourcing',
+      bgColor: 'bg-gradient-to-r from-green-600 to-green-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'about',
+      title: 'Ready to Work With Us?',
+      description: 'Join over 5,000 companies that trust Fortune Technologies for their HR solutions.',
+      primaryText: 'Get Started',
+      primaryLink: '/contact',
+      secondaryText: 'View Our Services',
+      secondaryLink: '/services',
+      bgColor: 'bg-gradient-to-r from-blue-600 to-indigo-600',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'contact',
+      title: 'Ready to Get Started?',
+      description: 'Our team is ready to help you transform your HR operations. Contact us today.',
+      primaryText: 'Schedule Call',
+      primaryLink: '/contact',
+      secondaryText: 'Send Message',
+      secondaryLink: '/contact',
+      bgColor: 'bg-gradient-to-r from-blue-600 to-blue-700',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'technology',
+      title: 'Ready to Embrace HR Technology?',
+      description: 'Transform your HR operations with our advanced technology solutions and custom software development.',
+      primaryText: 'Get Started',
+      primaryLink: '/contact',
+      secondaryText: 'View Solutions',
+      secondaryLink: '/technology',
+      bgColor: 'bg-gradient-to-r from-indigo-600 to-indigo-500',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
+    },
+    {
+      pageKey: 'security',
+      title: 'Ready to Secure Your Workplace?',
+      description: 'Professional CCTV and security solutions to protect your business and employees.',
+      primaryText: 'Get Quote',
+      primaryLink: '/contact',
+      secondaryText: 'View Solutions',
+      secondaryLink: '/security/cctv',
+      bgColor: 'bg-gradient-to-r from-gray-700 to-gray-600',
+      textColor: 'text-white',
+      position: 1,
+      isActive: true
     }
   ];
 
@@ -754,9 +995,9 @@ const testimonials = [
       data: cta
     });
   }
-  console.log('✅ Call-to-actions created');
+  console.log('✅ Call-to-actions created ');
 
-  console.log('✅ Database seeded successfully');
+  console.log('✅ Database seeded successfully with complete page content');
 }
 
 main()
